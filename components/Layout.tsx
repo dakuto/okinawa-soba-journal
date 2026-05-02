@@ -176,6 +176,7 @@ const Layout: React.FC<LayoutProps> = ({
                   rel="noopener noreferrer"
                   className="text-2xl hover:text-ryukyu-coral transition-colors duration-300"
                 >
+                  {/*@ts-ignore*/}
                   <FaThreads />
                 </a>
               </div>
