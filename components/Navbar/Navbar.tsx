@@ -161,6 +161,7 @@ function Navbar() {
                   rel="noopener noreferrer"
                   className="text-3xl text-ryukyu-deep-sea hover:text-ryukyu-coral transition-colors"
                 >
+                  {/*@ts-ignore*/}
                   <FaInstagram />
                 </a>
                 <a
@@ -169,6 +170,7 @@ function Navbar() {
                   rel="noopener noreferrer"
                   className="text-3xl text-ryukyu-deep-sea hover:text-ryukyu-coral transition-colors"
                 >
+                  {/*@ts-ignore*/}
                   <FaThreads />
                 </a>
               </div>
