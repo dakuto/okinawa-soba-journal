@@ -1,15 +1,13 @@
 // components/NotionRenderer.tsx
-import { get } from "http";
 import React from "react";
-import { getAllPosts } from "../lib/notionAPI";
 
-export const NotionRenderer = ({ blocks }) => {
-  const renderBlock = (block) => {
+export const NotionRenderer = ({ blocks }: any) => {
+  const renderBlock = (block: any): any => {
     switch (block.type) {
       case "heading_1":
         return (
           <h1 key={block.id} className="notion-h1">
-            {block.heading_1.rich_text.map((text, idx) => (
+            {block.heading_1.rich_text.map((text: any, idx: number) => (
               <span key={idx}>{text.plain_text}</span>
             ))}
           </h1>
@@ -18,7 +16,7 @@ export const NotionRenderer = ({ blocks }) => {
       case "heading_2":
         return (
           <h2 key={block.id} className="notion-h2">
-            {block.heading_2.rich_text.map((text, idx) => (
+            {block.heading_2.rich_text.map((text: any, idx: number) => (
               <span key={idx}>{text.plain_text}</span>
             ))}
           </h2>
@@ -27,7 +25,7 @@ export const NotionRenderer = ({ blocks }) => {
       case "heading_3":
         return (
           <h3 key={block.id} className="notion-h3">
-            {block.heading_3.rich_text.map((text, idx) => (
+            {block.heading_3.rich_text.map((text: any, idx: number) => (
               <span key={idx}>{text.plain_text}</span>
             ))}
           </h3>
@@ -41,7 +39,7 @@ export const NotionRenderer = ({ blocks }) => {
           <p key={block.id} className={isEmpty ? "my-0" : ""}>
             {isEmpty
               ? "\u00A0"
-              : texts.map((text, idx) => {
+              : texts.map((text: any, idx: number) => {
                   const content = text.plain_text;
                   const href = text.text.link?.url;
                   const isBold = text.annotations?.bold;
@@ -71,13 +69,15 @@ export const NotionRenderer = ({ blocks }) => {
         return (
           <ul key={block.id} className="list-disc list-inside my-2">
             <li>
-              {block.bulleted_list_item.rich_text.map((text, idx) => (
-                <span key={idx}>{text.plain_text}</span>
-              ))}
+              {block.bulleted_list_item.rich_text.map(
+                (text: any, idx: number) => (
+                  <span key={idx}>{text.plain_text}</span>
+                ),
+              )}
 
               {/* ★ 子リストがある場合は再帰的に描画 */}
               {block.bulleted_list_item.children &&
-                block.bulleted_list_item.children.map((child) => (
+                block.bulleted_list_item.children.map((child: any) => (
                   <div key={child.id} className="ml-6">
                     {renderBlock(child)}
                   </div>
@@ -89,13 +89,15 @@ export const NotionRenderer = ({ blocks }) => {
         return (
           <ol key={block.id} className="list-decimal list-inside my-2">
             <li>
-              {block.numbered_list_item.rich_text.map((text, idx) => (
-                <span key={idx}>{text.plain_text}</span>
-              ))}
+              {block.numbered_list_item.rich_text.map(
+                (text: any, idx: number) => (
+                  <span key={idx}>{text.plain_text}</span>
+                ),
+              )}
 
               {/* ★ 子リストがある場合は再帰的に描画 */}
               {block.numbered_list_item.children &&
-                block.numbered_list_item.children.map((child) => (
+                block.numbered_list_item.children.map((child: any) => (
                   <div key={child.id} className="ml-6">
                     {renderBlock(child)}
                   </div>
@@ -142,7 +144,7 @@ export const NotionRenderer = ({ blocks }) => {
     }
   };
 
-  const renderColumnList = (block) => {
+  const renderColumnList = (block: any) => {
     const columns = block.column_list?.children || [];
 
     return (
@@ -150,7 +152,7 @@ export const NotionRenderer = ({ blocks }) => {
         key={block.id}
         className="flex flex-col lg:flex-row gap-6 lg:gap-8 my-8"
       >
-        {columns.map((column, idx) => (
+        {columns.map((column: any, idx: number) => (
           <div key={idx} className="flex-1 w-full">
             {(column[column.type]?.children || []).map(renderBlock)}
           </div>
@@ -159,5 +161,5 @@ export const NotionRenderer = ({ blocks }) => {
     );
   };
 
-  return <>{blocks.map((block) => renderBlock(block))}</>;
+  return <>{blocks.map((block: any) => renderBlock(block))}</>;
 };
