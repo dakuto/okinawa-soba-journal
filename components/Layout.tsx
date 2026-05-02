@@ -113,6 +113,7 @@ const Layout: React.FC<LayoutProps> = ({
                       rel="noopener noreferrer"
                       className="text-3xl text-[#e4405f] hover:scale-110 transition-transform duration-300"
                     >
+                      // @ts-ignore
                       <FaSquareInstagram />
                     </a>
                     <a
@@ -121,6 +122,7 @@ const Layout: React.FC<LayoutProps> = ({
                       rel="noopener noreferrer"
                       className="text-3xl text-black hover:scale-110 transition-transform duration-300"
                     >
+                      // @ts-ignore
                       <FaSquareThreads />
                     </a>
                   </div>
