@@ -2,66 +2,90 @@
 import React from "react";
 
 export const NotionRenderer = ({ blocks }: any) => {
+  // --- テキスト装飾（取り消し線など）の処理 ---
+  const renderRichText = (richText: any) => {
+    if (!richText) return null;
+
+    return richText.map((text: any, idx: number) => {
+      const { annotations, plain_text, text: textContent } = text;
+      const href = textContent?.link?.url;
+
+      const classes = [
+        annotations?.bold ? "font-bold" : "",
+        annotations?.italic ? "italic" : "",
+        annotations?.code
+          ? "bg-gray-100 rounded px-1 font-mono text-sm text-red-500"
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const style: React.CSSProperties = {};
+      if (annotations?.color !== "default") {
+        style.color = annotations.color;
+      }
+
+      const decorations = [];
+      if (annotations?.strikethrough) decorations.push("line-through");
+      if (annotations?.underline) decorations.push("underline");
+
+      if (decorations.length > 0) {
+        style.textDecoration = decorations.join(" ");
+        style.display = "inline-block";
+      }
+
+      const content = (
+        <span key={idx} className={classes} style={style}>
+          {plain_text}
+        </span>
+      );
+
+      if (href) {
+        return (
+          <a
+            key={idx}
+            href={href}
+            className={`text-blue-600 underline hover:opacity-70 ${classes}`}
+            style={style}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {plain_text}
+          </a>
+        );
+      }
+
+      return content;
+    });
+  };
+
+  // --- ブロックごとの描画処理 ---
   const renderBlock = (block: any): any => {
     switch (block.type) {
       case "heading_1":
         return (
           <h1 key={block.id} className="notion-h1">
-            {block.heading_1.rich_text.map((text: any, idx: number) => (
-              <span key={idx}>{text.plain_text}</span>
-            ))}
+            {renderRichText(block.heading_1.rich_text)}
           </h1>
         );
-
       case "heading_2":
         return (
           <h2 key={block.id} className="notion-h2">
-            {block.heading_2.rich_text.map((text: any, idx: number) => (
-              <span key={idx}>{text.plain_text}</span>
-            ))}
+            {renderRichText(block.heading_2.rich_text)}
           </h2>
         );
-
       case "heading_3":
         return (
           <h3 key={block.id} className="notion-h3">
-            {block.heading_3.rich_text.map((text: any, idx: number) => (
-              <span key={idx}>{text.plain_text}</span>
-            ))}
+            {renderRichText(block.heading_3.rich_text)}
           </h3>
         );
 
       case "paragraph":
         const texts = block.paragraph.rich_text;
-        const isEmpty = texts.length === 0;
-
         return (
-          <p key={block.id} className={isEmpty ? "my-0" : ""}>
-            {isEmpty
-              ? "\u00A0"
-              : texts.map((text: any, idx: number) => {
-                  const content = text.plain_text;
-                  const href = text.text.link?.url;
-                  const isBold = text.annotations?.bold;
-
-                  return href ? (
-                    <a
-                      key={idx}
-                      href={href}
-                      className={`text-blue-600 underline ${
-                        isBold ? "font-bold" : ""
-                      }`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {content}
-                    </a>
-                  ) : (
-                    <span key={idx} className={isBold ? "font-bold" : ""}>
-                      {content}
-                    </span>
-                  );
-                })}
+          <p key={block.id} className={texts.length === 0 ? "my-0" : "mb-4"}>
+            {texts.length === 0 ? "\u00A0" : renderRichText(texts)}
           </p>
         );
 
@@ -69,62 +93,63 @@ export const NotionRenderer = ({ blocks }: any) => {
         return (
           <ul key={block.id} className="list-disc list-inside my-2">
             <li>
-              {block.bulleted_list_item.rich_text.map(
-                (text: any, idx: number) => (
-                  <span key={idx}>{text.plain_text}</span>
-                ),
+              {renderRichText(block.bulleted_list_item.rich_text)}
+              {block.bulleted_list_item.children && (
+                <div className="ml-6">
+                  {block.bulleted_list_item.children.map((child: any) =>
+                    renderBlock(child),
+                  )}
+                </div>
               )}
-
-              {/* ★ 子リストがある場合は再帰的に描画 */}
-              {block.bulleted_list_item.children &&
-                block.bulleted_list_item.children.map((child: any) => (
-                  <div key={child.id} className="ml-6">
-                    {renderBlock(child)}
-                  </div>
-                ))}
             </li>
           </ul>
         );
+
       case "numbered_list_item":
         return (
           <ol key={block.id} className="list-decimal list-inside my-2">
             <li>
-              {block.numbered_list_item.rich_text.map(
-                (text: any, idx: number) => (
-                  <span key={idx}>{text.plain_text}</span>
-                ),
+              {renderRichText(block.numbered_list_item.rich_text)}
+              {block.numbered_list_item.children && (
+                <div className="ml-6">
+                  {block.numbered_list_item.children.map((child: any) =>
+                    renderBlock(child),
+                  )}
+                </div>
               )}
-
-              {/* ★ 子リストがある場合は再帰的に描画 */}
-              {block.numbered_list_item.children &&
-                block.numbered_list_item.children.map((child: any) => (
-                  <div key={child.id} className="ml-6">
-                    {renderBlock(child)}
-                  </div>
-                ))}
             </li>
           </ol>
         );
+
       case "image":
         const src =
           block.image.type === "external"
             ? block.image.external.url
             : block.image.file.url;
         return (
-          <div key={block.id} className="my-4">
-            <img src={src} alt="" className="w-full h-auto rounded-md" />
+          <div key={block.id} className="my-6">
+            <img
+              src={src}
+              alt=""
+              className="w-full h-auto rounded-lg shadow-sm"
+            />
           </div>
         );
 
+      // ★ Googleマップなどの埋め込み対応
       case "embed":
         const embedUrl = block.embed?.url;
         if (!embedUrl) return null;
         return (
-          <div key={block.id} className="my-4">
+          <div
+            key={block.id}
+            className="my-6 w-full overflow-hidden rounded-lg shadow-sm"
+            style={{ aspectRatio: "16 / 9" }}
+          >
             <iframe
               src={embedUrl}
               width="100%"
-              height="400"
+              height="100%"
               style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
@@ -134,32 +159,30 @@ export const NotionRenderer = ({ blocks }: any) => {
         );
 
       case "divider":
-        return <hr key={block.id} className="my-6 border-t border-gray-300" />;
+        return <hr key={block.id} className="my-8 border-t border-gray-200" />;
 
       case "column_list":
-        return renderColumnList(block);
+        const columns = block.column_list?.children || [];
+        return (
+          <div key={block.id} className="flex flex-col lg:flex-row gap-6 my-8">
+            {columns.map((column: any, idx: number) => (
+              <div key={idx} className="flex-1 w-full">
+                {(column[column.type]?.children || []).map((child: any) =>
+                  renderBlock(child),
+                )}
+              </div>
+            ))}
+          </div>
+        );
 
       default:
         return null;
     }
   };
 
-  const renderColumnList = (block: any) => {
-    const columns = block.column_list?.children || [];
-
-    return (
-      <div
-        key={block.id}
-        className="flex flex-col lg:flex-row gap-6 lg:gap-8 my-8"
-      >
-        {columns.map((column: any, idx: number) => (
-          <div key={idx} className="flex-1 w-full">
-            {(column[column.type]?.children || []).map(renderBlock)}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  return <>{blocks.map((block: any) => renderBlock(block))}</>;
+  return (
+    <div className="notion-content">
+      {blocks.map((block: any) => renderBlock(block))}
+    </div>
+  );
 };
