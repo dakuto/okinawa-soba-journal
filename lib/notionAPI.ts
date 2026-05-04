@@ -18,6 +18,15 @@ const n2m = new NotionToMarkdown({
 });
 
 /**
+ * CloudinaryのURLに最適化パラメータを挿入する関数
+ */
+const optimizeCloudinaryUrl = (url: string) => {
+    if (!url.includes("cloudinary.com")) return url;
+    // URLの /upload/ の直後に f_auto (形式最適化), q_auto (画質最適化) を挿入
+    return url.replace("/upload/", "/upload/f_auto,q_auto/");
+};
+
+/**
  * ページオブジェクトからメタデータを安全に抽出する内部関数
  */
 const getPageMetaData = (post: PageObjectResponse) => {
@@ -29,15 +38,24 @@ const getPageMetaData = (post: PageObjectResponse) => {
     const dateProp = props.Date as { type: "date"; date: { start: string } | null };
     const slugProp = props.Slug as { type: "rich_text"; rich_text: Array<{ plain_text: string }> };
     const tagsProp = props.Tags as { type: "multi_select"; multi_select: Array<{ name: string }> };
-    const thumbProp = props.Thumbnail as any; // ファイルプロパティは構造が複雑なため一旦anyで許容
 
-    // サムネイルURLの抽出
+    // --- 追加・修正箇所 ---
+    const externalThumbProp = props.ExternalThumbnail as { type: "url"; url: string | null };
+    const thumbProp = props.Thumbnail as any;
+
+    // サムネイルURLの抽出（Cloudinaryを最優先）
     let thumbnailUrl = "/images/no-image.png";
-    if (thumbProp?.files?.length > 0) {
+
+    if (externalThumbProp?.url) {
+        // 1. ExternalThumbnail列にURLがあれば、それを最適化して使用
+        thumbnailUrl = optimizeCloudinaryUrl(externalThumbProp.url);
+    } else if (thumbProp?.files?.length > 0) {
+        // 2. なければ、従来のThumbnail列（Notion内部）を使用
         const fileData = thumbProp.files[0];
         const url = fileData.file?.url || fileData.external?.url;
         if (url) thumbnailUrl = url;
     }
+    // -----------------------
 
     return {
         id: post.id,
@@ -89,11 +107,19 @@ export const getSinglePost = async (slug: string) => {
     const metadata = getPageMetaData(page);
     const blocks = await getPageBlocks(page.id);
     const mdBlocks = await n2m.blocksToMarkdown(blocks);
-    const mdString = n2m.toMarkdownString(mdBlocks);
+    let mdString = n2m.toMarkdownString(mdBlocks).parent || "";
 
+    // --- ここを追加：本文中のCloudinary URLを最適化 ---
+    // 文中の "https://res.cloudinary.com/.../upload/..." を探して 
+    // "/upload/f_auto,q_auto/" に書き換えます
+    mdString = mdString.replace(
+        /https:\/\/res\.cloudinary\.com\/[^\/]+\/image\/upload\//g,
+        (match) => match + "f_auto,q_auto/"
+    );
+    // ----------------------------------------------
     return {
         metadata,
-        markdown: mdString.parent || "",
+        markdown: mdString,
     };
 };
 

@@ -5,6 +5,7 @@ const nextConfig = {
   images: {
     // Notionの画像が保存されているサーバーのドメインを許可
     domains: [
+      "res.cloudinary.com",
       "www.notion.so",
       "s3.us-west-2.amazonaws.com",
       "prod-files-secure.s3.us-west-2.amazonaws.com",
