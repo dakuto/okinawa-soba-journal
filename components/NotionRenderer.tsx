@@ -164,7 +164,7 @@ export const NotionRenderer = ({ blocks }: any) => {
       case "column_list":
         const columns = block.column_list?.children || [];
         return (
-          <div key={block.id} className="flex flex-col lg:flex-row gap-6 my-8">
+          <div key={block.id} className="flex flex-col lg:flex-row gap-6">
             {columns.map((column: any, idx: number) => (
               <div key={idx} className="flex-1 w-full">
                 {(column[column.type]?.children || []).map((child: any) =>
