@@ -1,8 +1,7 @@
-// components/NotionRenderer.tsx
 import React from "react";
 
 export const NotionRenderer = ({ blocks }: any) => {
-  // --- テキスト装飾（取り消し線など）の処理 ---
+  // --- 1. テキスト装飾（改行・太字・リンクなど）の処理 ---
   const renderRichText = (richText: any) => {
     if (!richText) return null;
 
@@ -34,9 +33,15 @@ export const NotionRenderer = ({ blocks }: any) => {
         style.display = "inline-block";
       }
 
+      // --- 改行文字 (\n) を <br /> に変換して表示 ---
       const content = (
         <span key={idx} className={classes} style={style}>
-          {plain_text}
+          {plain_text.split("\n").map((line: string, i: number) => (
+            <React.Fragment key={i}>
+              {line}
+              {i !== plain_text.split("\n").length - 1 && <br />}
+            </React.Fragment>
+          ))}
         </span>
       );
 
@@ -50,7 +55,7 @@ export const NotionRenderer = ({ blocks }: any) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {plain_text}
+            {content} {/* aタグの中も改行対応したcontentを入れる */}
           </a>
         );
       }
@@ -59,7 +64,7 @@ export const NotionRenderer = ({ blocks }: any) => {
     });
   };
 
-  // --- ブロックごとの描画処理 ---
+  // --- 2. ブロックごとの描画処理 ---
   const renderBlock = (block: any): any => {
     switch (block.type) {
       case "heading_1":
@@ -91,35 +96,44 @@ export const NotionRenderer = ({ blocks }: any) => {
 
       case "bulleted_list_item":
         return (
-          <ul key={block.id} className="list-disc list-inside my-2">
-            <li>
-              {renderRichText(block.bulleted_list_item.rich_text)}
-              {block.bulleted_list_item.children && (
-                <div className="ml-6">
-                  {block.bulleted_list_item.children.map((child: any) =>
-                    renderBlock(child),
-                  )}
-                </div>
-              )}
-            </li>
+          <ul key={block.id} className="list-disc list-inside my-2 ml-4">
+            <li>{renderRichText(block.bulleted_list_item.rich_text)}</li>
           </ul>
         );
 
       case "numbered_list_item":
         return (
-          <ol key={block.id} className="list-decimal list-inside my-2">
-            <li>
-              {renderRichText(block.numbered_list_item.rich_text)}
-              {block.numbered_list_item.children && (
-                <div className="ml-6">
-                  {block.numbered_list_item.children.map((child: any) =>
-                    renderBlock(child),
-                  )}
-                </div>
-              )}
-            </li>
+          <ol key={block.id} className="list-decimal list-inside my-2 ml-4">
+            <li>{renderRichText(block.numbered_list_item.rich_text)}</li>
           </ol>
         );
+
+      case "callout": {
+        const { icon, rich_text } = block.callout;
+        return (
+          <div
+            key={block.id}
+            className="flex gap-4 p-4 my-6 bg-[#f1f1ef] rounded-lg items-start"
+          >
+            {icon && (
+              <div className="text-xl flex-shrink-0 leading-none">
+                {icon.type === "emoji" ? (
+                  icon.emoji
+                ) : icon.external?.url || icon.file?.url ? (
+                  <img
+                    src={icon.external?.url || icon.file?.url}
+                    alt=""
+                    className="w-6 h-6"
+                  />
+                ) : null}
+              </div>
+            )}
+            <div className="flex-1 leading-relaxed text-gray-800">
+              {renderRichText(rich_text)}
+            </div>
+          </div>
+        );
+      }
 
       case "image":
         const src =
@@ -136,7 +150,6 @@ export const NotionRenderer = ({ blocks }: any) => {
           </div>
         );
 
-      // ★ Googleマップなどの埋め込み対応
       case "embed":
         const embedUrl = block.embed?.url;
         if (!embedUrl) return null;
@@ -153,27 +166,12 @@ export const NotionRenderer = ({ blocks }: any) => {
               style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
             ></iframe>
           </div>
         );
 
       case "divider":
         return <hr key={block.id} className="my-8 border-t border-gray-200" />;
-
-      case "column_list":
-        const columns = block.column_list?.children || [];
-        return (
-          <div key={block.id} className="flex flex-col lg:flex-row gap-6">
-            {columns.map((column: any, idx: number) => (
-              <div key={idx} className="flex-1 w-full">
-                {(column[column.type]?.children || []).map((child: any) =>
-                  renderBlock(child),
-                )}
-              </div>
-            ))}
-          </div>
-        );
 
       default:
         return null;
