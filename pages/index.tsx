@@ -62,7 +62,7 @@ export default function Home({
     <>
       <div className="w-full">
         <Head>
-          <title>沖縄そば日誌 | カツオ出汁を巡る食べ歩き記録</title>
+          <title>沖縄そば週末記 | 沖縄そばを巡る食べ歩き記録</title>
           <meta
             name="description"
             content="沖縄市・うるま市を中心に、カツオ出汁ベースの沖縄そばをこよなく愛する管理人の食べ歩きブログです。"

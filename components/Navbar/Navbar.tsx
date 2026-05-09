@@ -52,7 +52,7 @@ function Navbar() {
                     : "text-ryukyu-coral group-hover:text-white"
                 }`}
               >
-                日誌
+                週末記
               </span>
             </div>
             <span

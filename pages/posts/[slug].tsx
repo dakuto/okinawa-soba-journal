@@ -100,7 +100,7 @@ const Post: React.FC<PostProps> = ({
   return (
     <section className="container lg:px-2 mx-auto my-4 md:my-10">
       <Head>
-        <title>{`${post.metadata.title} | 沖縄そば日誌`}</title>
+        <title>{`${post.metadata.title} | 沖縄そば週末記`}</title>
         <meta
           name="description"
           content={`${post.metadata.title}の紹介ページです。`}

@@ -77,7 +77,7 @@ const BlogPageList: React.FC<BlogPageListProps> = ({
   return (
     <div className="container mx-auto h-full w-full">
       <Head>
-        <title>記事一覧 | 沖縄そば日誌</title>
+        <title>記事一覧 | 沖縄そば週末記</title>
         <meta name="description" content="沖縄そば巡りの記録一覧です。" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

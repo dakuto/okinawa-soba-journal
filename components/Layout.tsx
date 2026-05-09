@@ -42,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({
         <section className="w-full bg-ryukyu-washi">
           <div className="mx-auto max-w-[1200px] flex justify-center py-6 sm:py-10 px-4 md:px-0">
             <Image
-              src="/images/soba_img.png"
+              src="/images/soba_img.jpg"
               alt="沖縄そば"
               width={1200}
               height={560}
@@ -104,7 +104,7 @@ const Layout: React.FC<LayoutProps> = ({
                     />
                   </div>
                   <p className="text-sm text-ryukyu-text-light leading-relaxed mb-4 text-justify">
-                    カツオ出汁の沖縄そばを愛してやまない管理人の秀範です。地元沖縄の味をじっくりと紹介します。
+                    カツオ出汁の沖縄そばを愛してやまない管理人です。地元沖縄の味をじっくりと紹介します。
                   </p>
                   <div className="flex items-center gap-6">
                     <a
@@ -152,9 +152,9 @@ const Layout: React.FC<LayoutProps> = ({
             <div className="flex flex-col md:flex-row justify-between items-center gap-8">
               {/* サイト名とコピーライト */}
               <div className="text-center md:text-left">
-                <p className="font-bold text-lg mb-1">沖縄そば日誌</p>
+                <p className="font-bold text-lg mb-1">沖縄そば週末記</p>
                 <p className="text-xs opacity-70">
-                  © {new Date().getFullYear()} 沖縄そば日誌. All rights
+                  © {new Date().getFullYear()} 沖縄そば週末記. All rights
                   reserved.
                 </p>
               </div>

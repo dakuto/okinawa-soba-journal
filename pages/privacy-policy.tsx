@@ -14,7 +14,7 @@ const PrivacyPolicy: React.FC<Props> = ({ allTags, allPosts, latestPosts }) => {
   return (
     <>
       <Head>
-        <title>プライバシーポリシー | 沖縄そば日誌</title>
+        <title>プライバシーポリシー | 沖縄そば週末記</title>
       </Head>
 
       <article className="prose prose-slate max-w-none">

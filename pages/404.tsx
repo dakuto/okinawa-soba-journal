@@ -14,7 +14,7 @@ const Custom404 = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
       <Head>
-        <title>ページが見つかりません | 沖縄そば日誌</title>
+        <title>ページが見つかりません | 沖縄そば週末記</title>
       </Head>
 
       {/* 視覚的なインパクト */}

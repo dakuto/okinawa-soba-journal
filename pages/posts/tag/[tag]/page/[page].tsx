@@ -99,7 +99,7 @@ const BlogTagPageList: React.FC<BlogTagPageListProps> = ({
   return (
     <div className="container mx-auto h-full w-full">
       <Head>
-        <title>{currentTag} の記事一覧 | 沖縄そば日誌</title>
+        <title>{currentTag} の記事一覧 | 沖縄そば週末記</title>
         <meta
           name="description"
           content={`タグ「${currentTag}」の沖縄そば巡り記事一覧です。`}
@@ -112,7 +112,7 @@ const BlogTagPageList: React.FC<BlogTagPageListProps> = ({
         <div className="absolute -bottom-[4.5rem] -right-10 w-[15rem] sm:w-[20rem] aspect-square opacity-[0.08] rotate-[-15deg] select-none pointer-events-none">
           <Image
             src="/images/okinawasoba-image.png"
-            alt="沖縄そば日誌 ロゴ"
+            alt="沖縄そば週末記 ロゴ"
             fill
             style={{ objectFit: "contain" }}
           />

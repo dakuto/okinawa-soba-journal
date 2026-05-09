@@ -23,10 +23,10 @@ const About = ({ allTags, latestPosts }) => {
   return (
     <section className="container lg:px-2 mx-auto my-4 md:my-10">
       <Head>
-        <title>私について | 沖縄そば日誌</title>
+        <title>私について | 沖縄そば週末記</title>
         <meta
           name="description"
-          content="沖縄そば日誌の管理人、秀範の自己紹介ページです。福祉用具専門相談員としての顔、Web制作を楽しむ顔、そして無類の沖縄そば好きとしての顔を紹介します。"
+          content="沖縄そば週末記の管理人の自己紹介ページです。福祉用具専門相談員としての顔、Web制作を楽しむ顔、そして無類の沖縄そば好きとしての顔を紹介します。"
         />
       </Head>
 
