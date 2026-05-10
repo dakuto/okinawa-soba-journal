@@ -173,6 +173,25 @@ export const NotionRenderer = ({ blocks }: any) => {
       case "divider":
         return <hr key={block.id} className="my-8 border-t border-gray-200" />;
 
+      case "column_list":
+        return (
+          <div
+            key={block.id}
+            className="flex flex-col md:flex-row gap-4 my-6 w-full"
+          >
+            {block.column_list.children?.map((child: any) =>
+              renderBlock(child),
+            )}
+          </div>
+        );
+
+      case "column":
+        return (
+          <div key={block.id} className="flex-1 w-full">
+            {block.column.children?.map((child: any) => renderBlock(child))}
+          </div>
+        );
+
       default:
         return null;
     }
