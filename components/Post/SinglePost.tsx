@@ -29,10 +29,10 @@ const SinglePost = (props: Props) => {
           />
         </Link>
         <div className="p-5 flex flex-col flex-grow">
-          <div className="flex flex-col">
-            <h3 className="card-title">
+          <div className="flex gap-3 items-center">
+            {/* <h3 className="card-title">
               <Link href={`/posts/${slug}`}>{title}</Link>
-            </h3>
+            </h3> */}
             <div className="text-slate-500 text-sm mb-3">{date}</div>
             <div className="flex flex-wrap gap-2 mb-4">
               {tags.map((tag: string, index: number) => (
