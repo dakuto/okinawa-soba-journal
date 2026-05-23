@@ -29,6 +29,7 @@ interface BlogTagPageListProps {
   currentPage: number;
   allTags: string[];
   latestPosts: Post[];
+  totalPostsCount: number;
 }
 
 // getStaticPaths用のパラメータ型
@@ -74,6 +75,11 @@ export const getStaticProps: GetStaticProps = async (context) => {
   const allTags = await getAllTags();
   const allPosts = await getAllPosts();
   const latestPosts = allPosts.slice(0, 4);
+  const totalPostsCount = allPosts.filter((post) =>
+    post.tags
+      .map((t) => t.toUpperCase())
+      .includes(upperCaseCurrentTag.toUpperCase()),
+  ).length;
 
   return {
     props: {
@@ -83,6 +89,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       currentPage,
       allTags,
       latestPosts,
+      totalPostsCount,
     },
     revalidate: 60,
   };
@@ -95,6 +102,7 @@ const BlogTagPageList: React.FC<BlogTagPageListProps> = ({
   currentPage,
   allTags,
   latestPosts,
+  totalPostsCount,
 }) => {
   return (
     <div className="container mx-auto h-full w-full">
@@ -134,7 +142,7 @@ const BlogTagPageList: React.FC<BlogTagPageListProps> = ({
               />
             </svg>
             <span className="text-xs font-bold tracking-[0.2em] uppercase">
-              Tag Search
+              Eria Search
             </span>
           </div>
 
@@ -148,7 +156,7 @@ const BlogTagPageList: React.FC<BlogTagPageListProps> = ({
             <span className="font-bold text-ryukyu-deep-sea">{currentTag}</span>
             」に関する記事が
             <span className="mx-1 font-bold text-ryukyu-coral">
-              {posts.length}
+              {totalPostsCount}
             </span>
             件見つかりました。
           </p>

@@ -19,7 +19,7 @@ interface LayoutProps {
   isTopPage?: boolean; // トップページ判定（任意）
   latestPosts: any[]; // 最新記事の配列（詳細な型があればPost[]などに置換可）
   allPosts: any[]; // 全記事の配列（Omikujiで使用）
-  hideLayout?: boolean; // 👈 追加：ヘッダー・フッター・サイドバーを隠すフラグ
+  hideLayout?: boolean; // ヘッダー・フッター・サイドバーを隠すフラグ
 }
 
 // ------------------------------------------------
@@ -29,9 +29,19 @@ const Layout: React.FC<LayoutProps> = ({
   allTags,
   isTopPage,
   latestPosts,
-  allPosts,
+  allPosts = [],
   hideLayout = false,
 }) => {
+  const tagCounts: Record<string, number> = {};
+  if (allPosts && allPosts.length > 0) {
+    allPosts.forEach((post) => {
+      if (post.tags && Array.isArray(post.tags)) {
+        post.tags.forEach((tag: string) => {
+          tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+        });
+      }
+    });
+  }
   return (
     <div className="flex flex-col min-h-screen bg-ryukyu-washi">
       {/* Navbar の制御 */}
@@ -129,13 +139,13 @@ const Layout: React.FC<LayoutProps> = ({
                 </div>
               </div>
 
-              {/* タグ検索カード */}
+              {/* エリア検索カード */}
               <div className="p-6 bg-white rounded-xl shadow-sm border border-ryukyu-border">
                 <h3 className="font-bold border-b-2 border-ryukyu-deep-sea pb-2 mb-4 text-ryukyu-text flex items-center">
-                  <span className="mr-2">🔍</span> タグから探す
+                  <span className="mr-2">🔍</span> エリアから探す
                 </h3>
                 <div className="mx-0 p-4 bg-ryukyu-washi rounded-xl border border-ryukyu-border">
-                  <Tag tags={allTags} />
+                  <Tag tags={allTags} tagCounts={tagCounts} />
                 </div>
               </div>
 
