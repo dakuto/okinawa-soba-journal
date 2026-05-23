@@ -39,6 +39,7 @@ interface PostProps {
   nextPost: NeighborPost | null;
   allTags: string[];
   latestPosts: PostMetadata[];
+  allPosts: any[];
 }
 
 // ------------------------------------------------
@@ -83,6 +84,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       nextPost,
       allTags,
       latestPosts,
+      allPosts,
     },
     revalidate: 60,
   };
@@ -96,6 +98,7 @@ const Post: React.FC<PostProps> = ({
   nextPost,
   allTags,
   latestPosts,
+  allPosts,
 }) => {
   return (
     <section className="container lg:px-2 mx-auto my-4 md:my-10">

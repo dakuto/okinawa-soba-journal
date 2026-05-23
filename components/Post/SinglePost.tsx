@@ -9,10 +9,19 @@ type Props = {
   slug: string;
   isPageList?: boolean;
   thumbnail: string;
+  tagCounts?: Record<string, number>; // ✨ 追加: 各タグの件数データ（例: { "沖縄市": 6, "うるま市": 4 }）
 };
 
 const SinglePost = (props: Props) => {
-  const { title, description, date, tags, slug, thumbnail } = props;
+  const {
+    title,
+    description,
+    date,
+    tags,
+    slug,
+    thumbnail,
+    tagCounts = {},
+  } = props;
 
   return (
     <div className="w-full flex h-full">
@@ -35,13 +44,24 @@ const SinglePost = (props: Props) => {
             </h3> */}
             <div className="text-slate-500 text-sm mb-3">{date}</div>
             <div className="flex flex-wrap gap-2 mb-4">
-              {tags.map((tag: string, index: number) => (
-                <Link href={`/posts/tag/${tag}/page/1`} key={index}>
-                  <span className="text-slate-600 bg-slate-100 border border-slate-200 rounded-xl px-2 py-0.5 text-sm font-medium hover:bg-slate-200 transition-colors">
-                    {tag}
-                  </span>
-                </Link>
-              ))}
+              {tags.map((tag: string, index: number) => {
+                // ✨ 追加: このタグの件数を取得
+                const count = tagCounts[tag] || 0;
+
+                return (
+                  <Link href={`/posts/tag/${tag}/page/1`} key={index}>
+                    <span className="text-slate-600 bg-slate-100 border border-slate-200 rounded-xl px-2 py-0.5 text-xs font-medium hover:bg-slate-200 transition-colors inline-flex items-center gap-1">
+                      #{tag}
+                      {/* ✨ 追加: 件数があれば表示 */}
+                      {count > 0 && (
+                        <span className="text-[10px] opacity-75">
+                          ({count})
+                        </span>
+                      )}
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
           <p className="text-slate-600 text-base leading-relaxed line-clamp-2 mb-4">

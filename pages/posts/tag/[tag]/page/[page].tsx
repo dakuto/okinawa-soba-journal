@@ -90,6 +90,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
       allTags,
       latestPosts,
       totalPostsCount,
+      allPosts,
     },
     revalidate: 60,
   };
