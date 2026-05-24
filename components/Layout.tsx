@@ -92,13 +92,14 @@ const Layout: React.FC<LayoutProps> = ({
           {!hideLayout && (
             <aside className="w-full lg:w-1/3 xl:w-1/4 lg:sticky lg:top-24 lg:self-start space-y-8 h-fit">
               {/* 新着記事カード */}
-              <div className="p-6 bg-white rounded-xl shadow-sm border border-ryukyu-border">
-                <h3 className="font-bold border-b-2 border-ryukyu-deep-sea pb-2 mb-4 text-ryukyu-text flex items-center">
-                  <span className="mr-2">🍜</span> 新着記事
-                </h3>
-                <LatestPosts latestPosts={latestPosts} />
-              </div>
-
+              {!isTopPage && (
+                <div className="p-6 bg-white rounded-xl shadow-sm border border-ryukyu-border">
+                  <h3 className="font-bold border-b-2 border-ryukyu-deep-sea pb-2 mb-4 text-ryukyu-text flex items-center">
+                    <span className="mr-2">🍜</span> 新着記事
+                  </h3>
+                  <LatestPosts latestPosts={latestPosts} />
+                </div>
+              )}
               {/* 管理人について */}
               <div className="p-6 bg-white rounded-xl shadow-sm border border-ryukyu-border">
                 <h3 className="font-bold border-b-2 border-ryukyu-deep-sea pb-2 mb-4 text-ryukyu-text text-center">
