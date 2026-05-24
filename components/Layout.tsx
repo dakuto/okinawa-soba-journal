@@ -33,12 +33,23 @@ const Layout: React.FC<LayoutProps> = ({
   hideLayout = false,
 }) => {
   const tagCounts: Record<string, number> = {};
+  const archiveCounts: Record<string, number> = {};
   if (allPosts && allPosts.length > 0) {
     allPosts.forEach((post) => {
       if (post.tags && Array.isArray(post.tags)) {
         post.tags.forEach((tag: string) => {
           tagCounts[tag] = (tagCounts[tag] || 0) + 1;
         });
+      }
+      if (post.date) {
+        // ハイフンで区切って [ "2026", "05", "24" ] に分解し、年と月を取り出す
+        const [year, month] = post.date.split("-");
+
+        if (year && month) {
+          const archiveKey = `${year}年${month}月`;
+          // 月ごとの件数をプラス1する
+          archiveCounts[archiveKey] = (archiveCounts[archiveKey] || 0) + 1;
+        }
       }
     });
   }
@@ -147,6 +158,37 @@ const Layout: React.FC<LayoutProps> = ({
                 </h3>
                 <div className="mx-0 p-4 bg-ryukyu-washi rounded-xl border border-ryukyu-border">
                   <Tag tags={allTags} tagCounts={tagCounts} />
+                </div>
+              </div>
+
+              {/* 月別アーカイブカード */}
+              <div className="p-6 bg-white rounded-xl shadow-sm border border-ryukyu-border">
+                <h3 className="font-bold border-b-2 border-ryukyu-deep-sea pb-2 mb-4 text-ryukyu-text flex items-center">
+                  <span className="mr-2">📅</span> 月別アーカイブ
+                </h3>
+                <div className="space-y-2 text-sm text-ryukyu-deep-sea font-medium">
+                  {Object.entries(archiveCounts)
+                    // 最新の月が一番上に来るように並び替える
+                    .sort((a, b) => b[0].localeCompare(a[0]))
+                    .map(([monthKey, count]) => {
+                      // "2026年05月" から "2026/05" というURL用の文字列を作る
+                      const urlPath = monthKey
+                        .replace("年", "/")
+                        .replace("月", "");
+
+                      return (
+                        <Link
+                          key={monthKey}
+                          href={`/posts/archive/${urlPath}`}
+                          className="flex justify-between items-center hover:text-ryukyu-coral transition-colors py-1.5 border-b border-dashed border-ryukyu-border last:border-0"
+                        >
+                          <span>{monthKey}</span>
+                          <span className="text-xs bg-ryukyu-washi px-2 py-0.5 rounded-full border border-ryukyu-border text-ryukyu-text-light">
+                            {count} 記事
+                          </span>
+                        </Link>
+                      );
+                    })}
                 </div>
               </div>
 
