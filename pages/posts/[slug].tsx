@@ -132,7 +132,7 @@ const Post: React.FC<PostProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-sm text-ryukyu-text-light">
           <span className="flex items-center gap-1 flex-shrink-0">
             <span className="opacity-70 text-base">📅</span>
-            <span className="font-medium">投稿日：{post.metadata.date}</span>
+            <span className="font-medium">来店日：{post.metadata.date}</span>
           </span>
 
           <div className="flex flex-wrap gap-2">
