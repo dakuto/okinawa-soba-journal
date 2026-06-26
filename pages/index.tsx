@@ -67,6 +67,11 @@ export default function Home({
             name="description"
             content="沖縄市・うるま市を中心に、カツオ出汁ベースの沖縄そばをこよなく愛する管理人の食べ歩きブログです。"
           />
+
+          <meta
+            name="google-site-verification"
+            content="ijqlskjkrwcb27cFlJyavb-YwrJNtll5Gm6-9MkW3HQ"
+          />
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
