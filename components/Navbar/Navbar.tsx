@@ -156,7 +156,7 @@ function Navbar() {
               {/* ✨ 追加：メニュー内SNSリンクエリア */}
               <div className="flex items-center gap-8 mt-4 pt-10 border-t border-ryukyu-deep-sea/10 w-40 justify-center">
                 <a
-                  href="https://www.instagram.com/あなたのアカウント"
+                  href="https://www.instagram.com/norys_001"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-3xl text-ryukyu-deep-sea hover:text-ryukyu-coral transition-colors"
@@ -165,7 +165,7 @@ function Navbar() {
                   <FaInstagram />
                 </a>
                 <a
-                  href="https://www.threads.net/@あなたのアカウント"
+                  href="https://www.threads.net/@norys_001"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-3xl text-ryukyu-deep-sea hover:text-ryukyu-coral transition-colors"
