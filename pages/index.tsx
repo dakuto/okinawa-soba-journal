@@ -28,17 +28,22 @@ interface HomeProps {
 // ------------------------------------------------
 
 export const getStaticProps: GetStaticProps = async () => {
-  const fourPosts = await getPostForTopPage();
-  const allTags = await getAllTags();
+  // ① 全記事をキャッシュから取得（Notion API 呼び出しなし）
   const allPosts = await getAllPosts();
+
+  // ② 最新4件を抽出（トップページ用）
+  const fourPosts = allPosts.slice(0, 4);
+
+  // ③ 全タグ一覧を抽出（重複排除）
+  const allTags = Array.from(new Set(allPosts.flatMap((post) => post.tags)));
 
   return {
     props: {
       fourPosts,
-      latestPosts: fourPosts,
+      latestPosts: fourPosts, // 既存仕様に合わせて残す
       allTags,
       allPosts, // Omikujiで使用する全記事の配列
-      isTopPage: true, // Layout側でメインビジュアルを表示するためのフラグ
+      isTopPage: true,
     },
     revalidate: 60,
   };

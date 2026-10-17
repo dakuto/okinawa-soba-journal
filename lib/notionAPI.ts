@@ -68,10 +68,19 @@ const getPageMetaData = (post: PageObjectResponse) => {
     };
 };
 
-/**
+// --- キャッシュ用変数 ---
+let cachedAllPosts: any[] | null = null;
+
+/** 
  * 全記事取得（公開済みのみ）
+ * キャッシュを使って Notion API の呼び出しを減らす
  */
 export const getAllPosts = async () => {
+    // すでにキャッシュがあればそれを返す
+    if (cachedAllPosts) {
+        return cachedAllPosts;
+    }
+
     if (!process.env.NOTION_DATABASE_ID) return [];
 
     const response: QueryDatabaseResponse = await notion.databases.query({
@@ -84,13 +93,28 @@ export const getAllPosts = async () => {
         sorts: [{ property: "Date", direction: "descending" }],
     });
 
-    return (response.results as PageObjectResponse[]).map(getPageMetaData);
+    // メタデータに変換
+    const posts = (response.results as PageObjectResponse[]).map(getPageMetaData);
+
+    // キャッシュに保存
+    cachedAllPosts = posts;
+
+    return posts;
 };
+
+// --- slug ごとのキャッシュ ---
+const cachedSinglePosts: Record<string, any> = {};
 
 /**
  * 個別記事取得（Slug指定）
+ * キャッシュを使って Notion API の呼び出しを減らす
  */
 export const getSinglePost = async (slug: string) => {
+    // キャッシュがあれば返す
+    if (cachedSinglePosts[slug]) {
+        return cachedSinglePosts[slug];
+    }
+
     if (!process.env.NOTION_DATABASE_ID) return null;
 
     const response = await notion.databases.query({
@@ -105,40 +129,47 @@ export const getSinglePost = async (slug: string) => {
     if (!page) return null;
 
     const metadata = getPageMetaData(page);
-    const blocks = await getPageBlocks(page.id);
-    const mdBlocks = await n2m.blocksToMarkdown(blocks);
-    let mdString = n2m.toMarkdownString(mdBlocks).parent || "";
 
-    // --- ここを追加：本文中のCloudinary URLを最適化 ---
-    // 文中の "https://res.cloudinary.com/.../upload/..." を探して 
-    // "/upload/f_auto,q_auto/" に書き換えます
-    mdString = mdString.replace(
-        /https:\/\/res\.cloudinary\.com\/[^\/]+\/image\/upload\//g,
-        (match) => match + "f_auto,q_auto/"
-    );
-    // ----------------------------------------------
-    return {
-        metadata,
-        markdown: mdString,
-    };
+    // ISR のため、本文は取得しない
+    const result = { metadata };
+
+    cachedSinglePosts[slug] = result;
+    return result;
 };
 
 /**
  * ページ内の全ブロック取得（子要素も再帰的に取得）
+ * 深さ制限を入れて API 呼び出し爆発を防ぐ
  */
-export const getPageBlocks = async (pageId: string): Promise<BlockObjectResponse[]> => {
-    const response = await notion.blocks.children.list({ block_id: pageId });
+export const getPageBlocks = async (
+    blockId: string,
+    depth: number = 0,
+    maxDepth: number = 3
+): Promise<BlockObjectResponse[]> => {
+    // 深さ制限に達したら子を取得しない
+    if (depth > maxDepth) {
+        return [];
+    }
+
+    const response = await notion.blocks.children.list({
+        block_id: blockId,
+    });
+
     const blocks = response.results as BlockObjectResponse[];
 
     return await Promise.all(
         blocks.map(async (block: any) => {
             if (block.has_children) {
-                const children = await getPageBlocks(block.id);
                 const type = block.type;
+
+                // 次の階層を取得（深さ +1）
+                const children = await getPageBlocks(block.id, depth + 1, maxDepth);
+
                 if (block[type]) {
                     block[type].children = children;
                 }
             }
+
             return block;
         })
     );
@@ -148,7 +179,7 @@ export const getPageBlocks = async (pageId: string): Promise<BlockObjectResponse
  * トップページ用（最新4件）
  */
 export const getPostForTopPage = async (pagesize = 4) => {
-    const allPosts = await getAllPosts();
+    const allPosts = await getAllPosts(); // キャッシュ済み
     return allPosts.slice(0, pagesize);
 };
 
@@ -156,7 +187,7 @@ export const getPostForTopPage = async (pagesize = 4) => {
  * ページ番号指定による取得（ページネーション用）
  */
 export const getPostsByPage = async (page: number) => {
-    const allPosts = await getAllPosts();
+    const allPosts = await getAllPosts(); // キャッシュ済み
     const startIndex = (page - 1) * POSTS_PER_PAGE;
     return allPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
 };
@@ -165,7 +196,7 @@ export const getPostsByPage = async (page: number) => {
  * 総ページ数の算出
  */
 export const getNumberOfPages = async () => {
-    const allPosts = await getAllPosts();
+    const allPosts = await getAllPosts(); // キャッシュ済み
     return Math.ceil(allPosts.length / POSTS_PER_PAGE);
 };
 
@@ -173,8 +204,11 @@ export const getNumberOfPages = async () => {
  * タグ・ページ指定による取得（地名検索などに利用）
  */
 export const getPostsByTagAndPage = async (tagName: string, page: number) => {
-    const allPosts = await getAllPosts();
-    const filteredPosts = allPosts.filter((post) => post.tags.includes(tagName));
+    const allPosts = await getAllPosts(); // キャッシュ済み
+    const filteredPosts = allPosts.filter((post) =>
+        post.tags.includes(tagName)
+    );
+
     const startIndex = (page - 1) * POSTS_PER_PAGE;
     return filteredPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
 };
@@ -183,7 +217,7 @@ export const getPostsByTagAndPage = async (tagName: string, page: number) => {
  * 特定タグの総ページ数算出
  */
 export const getNumberOfPagesByTag = async (tagName: string) => {
-    const allPosts = await getAllPosts();
+    const allPosts = await getAllPosts(); // キャッシュ済み
     const count = allPosts.filter((post) => post.tags.includes(tagName)).length;
     return Math.ceil(count / POSTS_PER_PAGE);
 };
@@ -192,7 +226,7 @@ export const getNumberOfPagesByTag = async (tagName: string) => {
  * 全タグ一覧の取得（重複排除）
  */
 export const getAllTags = async () => {
-    const allPosts = await getAllPosts();
+    const allPosts = await getAllPosts(); // キャッシュ済み
     const allTags = allPosts.flatMap((post) => post.tags);
     return Array.from(new Set(allTags));
 };

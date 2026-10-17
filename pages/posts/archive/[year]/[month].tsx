@@ -30,22 +30,28 @@ interface BlogArchivePageListProps {
 
 // ✨ [month].tsx というファイル名に完全に合わせた getStaticPaths
 export const getStaticPaths: GetStaticPaths = async () => {
+  // ① 全記事をキャッシュから取得（Notion API 呼び出しなし）
   const allPosts = await getAllPosts();
-  const paths: { params: { year: string; month: string } }[] = [];
+
+  // ② 年月の組み合わせを抽出
+  const yearMonthSet = new Set<string>();
 
   allPosts.forEach((post) => {
-    if (post.date) {
-      const [year, month] = post.date.split("-");
-      if (year && month) {
-        // 重複しないようにパスを追加
-        const isExist = paths.some(
-          (p) => p.params.year === year && p.params.month === month,
-        );
-        if (!isExist) {
-          paths.push({ params: { year, month } });
-        }
-      }
-    }
+    if (!post.date) return;
+
+    const dateObj = new Date(post.date);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+
+    yearMonthSet.add(`${year}-${month}`);
+  });
+
+  // ③ paths を生成
+  const paths = Array.from(yearMonthSet).map((ym) => {
+    const [year, month] = ym.split("-");
+    return {
+      params: { year, month },
+    };
   });
 
   return {

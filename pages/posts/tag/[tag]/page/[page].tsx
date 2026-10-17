@@ -10,6 +10,7 @@ import SinglePost from "../../../../../components/Post/SinglePost";
 import Image from "next/image";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Pagenation from "../../../../../components/Pagenation/Pagenation";
+import { POSTS_PER_PAGE } from "../../../../../constants/constants";
 
 // --- ✨ 型定義 ---
 interface Post {
@@ -43,21 +44,33 @@ interface TagPagePath {
 // ------------------------------------------------
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const allTags = await getAllTags();
-  let params: TagPagePath[] = [];
+  // ① 全記事をキャッシュから取得（Notion API 呼び出しなし）
+  const allPosts = await getAllPosts();
 
-  await Promise.all(
-    allTags.map((tag: string) => {
-      return getNumberOfPagesByTag(tag).then((numberOfPagesByTag: number) => {
-        for (let i = 1; i <= numberOfPagesByTag; i++) {
-          params.push({ params: { tag: tag, page: i.toString() } });
-        }
+  // ② 全タグ一覧を作成
+  const allTags = Array.from(new Set(allPosts.flatMap((post) => post.tags)));
+
+  // ③ タグごとのページ数を計算（キャッシュから計算）
+  const paths: { params: { tag: string; page: string } }[] = [];
+
+  allTags.forEach((tag) => {
+    const filteredPosts = allPosts.filter((post) => post.tags.includes(tag));
+
+    const numberOfPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+
+    // ④ ページ番号ごとに paths を作成
+    for (let page = 1; page <= numberOfPages; page++) {
+      paths.push({
+        params: {
+          tag,
+          page: page.toString(),
+        },
       });
-    }),
-  );
+    }
+  });
 
   return {
-    paths: params,
+    paths,
     fallback: "blocking",
   };
 };

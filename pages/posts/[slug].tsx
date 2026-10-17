@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import React from "react";
 import Head from "next/head";
 import {
@@ -56,24 +57,30 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 // Notionページのデータ取得
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const allPosts = await getAllPosts();
   const slug = params?.slug as string;
+
+  // ① 記事本体（キャッシュ済み）
   const post = await getSinglePost(slug);
 
-  // ✨ もし記事が見つからない（非公開設定になった）場合は404ページへ飛ばす
   if (!post) {
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   }
 
-  const currentIndex = allPosts.findIndex((post) => post.slug === slug);
+  // ② 全記事をキャッシュから取得（Notion API 呼び出しなし）
+  const allPosts = await getAllPosts();
+
+  // ③ 前後の記事を取得
+  const currentIndex = allPosts.findIndex((p) => p.slug === slug);
   const prevPost = allPosts[currentIndex - 1] || null;
   const nextPost = allPosts[currentIndex + 1] || null;
 
-  // const post = await getSinglePost(slug);
-  const blocks = await getPageBlocks(post.metadata.id);
-  const allTags = await getAllTags();
+  // ④ ISR のため、ビルド時には本文を取得しない
+  const blocks = null;
+
+  // ⑤ 全タグ一覧（重複排除）
+  const allTags = Array.from(new Set(allPosts.flatMap((p) => p.tags)));
+
+  // ⑥ 最新4件
   const latestPosts = allPosts.slice(0, 4);
 
   return {
@@ -100,6 +107,23 @@ const Post: React.FC<PostProps> = ({
   latestPosts,
   allPosts,
 }) => {
+  // ISR 用：blocks を state にする
+  const [pageBlocks, setPageBlocks] = useState(blocks);
+
+  // 初回アクセス時に本文を取得
+  useEffect(() => {
+    // 記事が切り替わったら必ずリセット
+    setPageBlocks(null);
+
+    fetch(`/api/getPageBlocks?id=${post.metadata.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setPageBlocks(data.blocks);
+      })
+      .catch((err) => {
+        console.error("Error loading blocks:", err);
+      });
+  }, [post.metadata.id]);
   return (
     <section className="container lg:px-2 mx-auto my-4 md:my-10">
       <Head>
@@ -150,7 +174,11 @@ const Post: React.FC<PostProps> = ({
 
       {/* --- ✨ 記事本文 --- */}
       <div className="mt-10 pb-10 font-medium slug-contents leading-relaxed text-ryukyu-deep-sea">
-        <NotionRenderer blocks={blocks} />
+        {pageBlocks ? (
+          <NotionRenderer blocks={pageBlocks} />
+        ) : (
+          <p>読み込み中...</p>
+        )}
       </div>
 
       {/* --- ✨ ナビゲーションエリア --- */}
