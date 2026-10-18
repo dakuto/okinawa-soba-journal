@@ -98,20 +98,22 @@ export default function Home({
               <div className="relative z-10 text-center">
                 <h1 className="text-xl sm:text-2xl font-bold text-ryukyu-deep-sea mb-8 tracking-wider flex items-center justify-center gap-3">
                   <span className="h-1 w-8 bg-ryukyu-coral"></span>
-                  沖縄の風土と、カツオ出汁の香りに誘われて。
+                  沖縄の風土と、豊かな出汁の香りに誘われて。
                   <span className="h-1 w-8 bg-ryukyu-coral"></span>
                 </h1>
 
                 <div className="space-y-6 text-slate-600 leading-relaxed text-base md:text-lg">
                   <p className="inline-block">
                     毎週土曜日、中部地域（沖縄市・うるま市・北中城村
-                    etc...）を中心に、
+                    etc...）を中心に、さまざまな
                     <br className="hidden sm:inline" />
-                    昔ながらの
+                    沖縄そばの魅力を求めて食べ歩いています。
+                    <br className="hidden sm:inline" />
+                    その中でも、やっぱり心惹かれるのはホッとする
                     <span className="font-bold text-ryukyu-deep-sea border-b-2 border-ryukyu-coral/30">
-                      「カツオベース」
+                      「かつおだし」
                     </span>
-                    をメインにして沖縄そばを求めて食べ歩いています。
+                    。
                   </p>
                   <p className="inline-block">
                     1杯のそばに込められた店主のこだわりや、お店の温かな雰囲気を、
